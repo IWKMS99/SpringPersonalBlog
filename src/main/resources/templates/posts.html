@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мой Персональный Блог</title>
+</head>
+<body>
+
+<h1>Список Постов</h1>
+<a th:href="@{/post/new}">Создать новый пост</a>
+
+<div th:if="${#lists.isEmpty(posts)}">
+    <p>Пока нет ни одного поста.</p>
+</div>
+
+<div th:each="post : ${posts}" style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+    <h2 th:text="${post.title}">Заголовок Поста</h2>
+    <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
+    <a th:href="@{/post/{id}(id=${post.id})}">Читать далее...</a>
+</div>
+
+</body>
+</html>
