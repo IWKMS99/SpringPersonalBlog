@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование Поста</title>
+</head>
+<body>
+
+<h1>Редактирование Поста</h1>
+
+<form th:action="@{/post/{id}/edit(id=${post.id})}" th:object="${post}" method="post">
+    <div>
+        <label for="title">Заголовок:</label><br>
+        <input type="text" id="title" th:field="*{title}" required size="50">
+    </div>
+    <br>
+    <div>
+        <label for="content">Содержание:</label><br>
+        <textarea id="content" th:field="*{content}" rows="10" cols="50" required></textarea>
+    </div>
+    <br>
+    <div>
+        <button type="submit">Сохранить изменения</button>
+    </div>
+</form>
+
+<br>
+<a th:href="@{/}">Отмена</a>
+
+</body>
+</html>

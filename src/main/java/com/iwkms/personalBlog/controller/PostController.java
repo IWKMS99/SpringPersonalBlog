@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Controller
 public class PostController {
-
     private final PostService postService;
 
     @Autowired
@@ -36,7 +35,7 @@ public class PostController {
         Optional<Post> postOptional = postService.getPostById(id);
         if (postOptional.isPresent()) {
             model.addAttribute("post", postOptional.get());
-            return "post-details";
+            return "postDetails";
         } else {
             return "redirect:/";
         }
@@ -45,12 +44,39 @@ public class PostController {
     @GetMapping("/post/new")
     public String showCreateForm(Model model) {
         model.addAttribute("post", new Post());
-        return "post-form";
+        return "postForm";
     }
 
     @PostMapping("/post/new")
     public String createPost(@ModelAttribute Post post) {
         postService.createPost(post);
+        return "redirect:/";
+    }
+
+    @GetMapping("/post/{id}/edit")
+    public String showUpdateForm(@PathVariable Long id, Model model) {
+        Optional<Post> postOptional = postService.getPostById(id);
+        if (postOptional.isPresent()) {
+            model.addAttribute("post", postOptional.get());
+            return "postEditForm";
+        } else {
+            return "redirect:/";
+        }
+    }
+
+    @PostMapping("/post/{id}/edit")
+    public String updatePost(@PathVariable Long id, @ModelAttribute Post postDetails) {
+        Optional<Post> post = postService.updatePost(id, postDetails);
+        if (post.isPresent()) {
+            return "redirect:/post/" + id;
+        } else {
+            return "redirect:/";
+        }
+    }
+
+    @PostMapping("/post/{id}/delete")
+    public String deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
         return "redirect:/";
     }
 }
