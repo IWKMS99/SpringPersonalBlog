@@ -32,20 +32,21 @@
 <div th:each="post : ${posts}" class="post-item" style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
     <h2 th:text="${post.title}">Заголовок Поста</h2>
     <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
-    <div class="post-actions">
-        <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
-        <div sec:authorize="hasRole('ADMIN')">
-            <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" class="inline-form">
-                <button type="submit" class="btn btn-edit">Редактировать</button>
-            </form>
-            <form th:action="@{/post/{id}/delete(id=${post.id})}"
-                  method="post"
-                  class="inline-form"
-                  th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'">
-                <button type="submit" class="btn btn-delete">Удалить</button>
-            </form>
-        </div>
+<div class="post-actions">
+    <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
+    <div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}" style="display: inline-block;">
+        <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display: inline;">
+            <button type="submit" class="btn btn-edit">Редактировать</button>
+        </form>
+        <form th:action="@{/post/{id}/delete(id=${post.id})}"
+              method="post"
+              style="display: inline;"
+              th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'"
+              onsubmit="return confirm(this.getAttribute('data-confirm-message'));">
+            <button type="submit" class="btn btn-delete">Удалить</button>
+        </form>
     </div>
+</div>
 </div>
 
 </body>

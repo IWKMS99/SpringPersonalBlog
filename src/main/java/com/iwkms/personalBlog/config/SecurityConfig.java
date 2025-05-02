@@ -16,8 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String ADMIN_ROLE = "ADMIN";
-    private static final String[] PUBLIC_URLS = {"/", "/post/**", "/login", "/css/**", "/js/**"};
-    private static final String[] ADMIN_URLS = {"/post/new", "/post/{id}/edit", "/post/{id}/delete"};
+    private static final String USER_ROLE = "USER";
+    private static final String[] PUBLIC_URLS = {"/", "/post/*/view", "/login", "/css/**", "/js/**", "/register"};
     private static final String LOGIN_PAGE_URL = "/login";
     private static final String DEFAULT_SUCCESS_URL = "/";
     private static final String LOGOUT_URL = "/logout";
@@ -35,7 +35,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers(ADMIN_URLS).hasRole(ADMIN_ROLE)
+                        .requestMatchers("/post/new").authenticated()
+                        .requestMatchers("/post/{id}/edit", "/post/{id}/delete").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

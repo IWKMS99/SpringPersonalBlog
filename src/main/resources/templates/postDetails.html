@@ -13,5 +13,11 @@
     Полное содержание поста...
 </div>
 
+<div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}">
+    <a th:href="@{/post/{id}/edit(id=${post.id})}" class="btn btn-primary">Edit</a>
+    <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+</div>
 </body>
 </html>

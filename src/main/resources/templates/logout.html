@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Выход</title>
+</head>
+<body>
+<h2>Подтверждение выхода</h2>
+<p>Вы уверены, что хотите выйти?</p>
+
+<form th:action="@{/logout}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit">Выйти</button>
+    <a th:href="@{/}">Отмена</a>
+</form>
+</body>
+</html>

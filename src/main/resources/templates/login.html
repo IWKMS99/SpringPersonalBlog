@@ -16,6 +16,10 @@
     Вы успешно вышли.
 </div>
 
+<div th:if="${registrationSuccess}" style="color: green;">
+    <p th:text="${registrationSuccess}"></p>
+</div>
+
 <form th:action="@{/login}" method="post">
     <div>
         <label for="username">Имя пользователя:</label><br>
@@ -32,6 +36,8 @@
     </div>
 </form>
 
+<br>
+<a th:href="@{/register}">Зарегистрироваться</a>
 <br>
 <a th:href="@{/}">Вернуться к списку постов</a>
 

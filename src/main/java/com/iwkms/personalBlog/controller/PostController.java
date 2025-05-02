@@ -37,6 +37,9 @@ public class PostController {
     private static final String MSG_POST_DELETED = "Post successfully deleted";
     private static final String MSG_USER_NOT_FOUND = "User not found";
     
+    // Add new error message
+    private static final String MSG_UNAUTHORIZED = "You don't have permission to perform this action";
+    
     private final PostService postService;
     private final UserRepository userRepository;
     
@@ -95,44 +98,56 @@ public class PostController {
     
     @PostMapping("/post/{id}/edit")
     public String updatePost(@PathVariable Long id, @ModelAttribute Post postDetails, 
-                             RedirectAttributes redirectAttributes) {
-        return postService.updatePost(id, postDetails)
-                .map(post -> {
-                    redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_UPDATED);
-                    return String.format(REDIRECT_POST_DETAIL, id);
-                })
-                .orElseGet(() -> handlePostNotFound(redirectAttributes));
-    }
-    
-    @PostMapping("/post/{id}/delete")
-    public String deletePost(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+                            Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
-            postService.deletePost(id);
-            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_DELETED);
+            User currentUser = getCurrentUser(authentication);
+            return postService.updatePost(id, postDetails, currentUser)
+                    .map(post -> {
+                        redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_UPDATED);
+                        return String.format(REDIRECT_POST_DETAIL, id);
+                    })
+                    .orElseGet(() -> handlePostNotFound(redirectAttributes));
+        } catch (PostService.UnauthorizedAccessException e) {
+            return handleError(redirectAttributes, MSG_UNAUTHORIZED);
         } catch (RuntimeException e) {
             return handleError(redirectAttributes, e.getMessage());
         }
-        return REDIRECT_HOME;
     }
-
-    @GetMapping("/login")
-    public String getLoginPage() {
-        return "login";
+    
+    @PostMapping("/post/{id}/delete")
+    public String deletePost(@PathVariable Long id, Authentication authentication,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = getCurrentUser(authentication);
+            postService.deletePost(id, currentUser);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_DELETED);
+            return REDIRECT_HOME;
+        } catch (PostService.UnauthorizedAccessException e) {
+            return handleError(redirectAttributes, MSG_UNAUTHORIZED);
+        } catch (RuntimeException e) {
+            return handleError(redirectAttributes, e.getMessage());
+        }
     }
-
-
-    // Extract method for handling not found cases
+    
+    // Add this method to check if user is admin, useful in views for conditional UI elements
+    @ModelAttribute("isAdmin")
+    public boolean isAdmin(Authentication authentication) {
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+    
     private String handlePostNotFound(RedirectAttributes redirectAttributes) {
         return handleError(redirectAttributes, MSG_POST_NOT_FOUND);
     }
     
-    // Extract method for handling general errors
     private String handleError(RedirectAttributes redirectAttributes, String errorMessage) {
         redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, errorMessage);
         return REDIRECT_HOME;
     }
     
-    // Extract method for getting current user
     private User getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
         return userRepository.findByUsername(username)
