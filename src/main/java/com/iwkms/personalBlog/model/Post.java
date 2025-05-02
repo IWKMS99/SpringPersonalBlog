@@ -21,4 +21,8 @@ public class Post {
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 }

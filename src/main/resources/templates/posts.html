@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +10,19 @@
 <body>
 
 <h1>Список Постов</h1>
-<div class="actions">
-<a th:href="@{/post/new}" class="btn btn-primary">Создать новый пост</a>
+
+<div class="navigation" style="margin-bottom: 20px;">
+    <div sec:authorize="isAuthenticated()">
+        <span>Привет, <span th:text="${#authentication.getName()}"></span>!</span>
+        <a th:href="@{/logout}" class="btn btn-primary">Выйти</a>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}" class="btn btn-primary">Войти</a>
+    </div>
+</div>
+
+<div class="actions" sec:authorize="hasRole('ADMIN')">
+    <a th:href="@{/post/new}" class="btn btn-primary">Создать новый пост</a>
 </div>
 
 <div th:if="${#lists.isEmpty(posts)}">
@@ -21,16 +34,17 @@
     <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
     <div class="post-actions">
         <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
-        <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" class="inline-form">
-            <button type="submit" class="btn btn-edit">Редактировать</button>
-        </form>
-        <form th:action="@{/post/{id}/delete(id=${post.id})}"
-              method="post"
-              class="inline-form"
-              th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'">
-            <button type="submit" class="btn btn-delete">Удалить</button>
-        </form>
-
+        <div sec:authorize="hasRole('ADMIN')">
+            <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" class="inline-form">
+                <button type="submit" class="btn btn-edit">Редактировать</button>
+            </form>
+            <form th:action="@{/post/{id}/delete(id=${post.id})}"
+                  method="post"
+                  class="inline-form"
+                  th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'">
+                <button type="submit" class="btn btn-delete">Удалить</button>
+            </form>
+        </div>
     </div>
 </div>
 
