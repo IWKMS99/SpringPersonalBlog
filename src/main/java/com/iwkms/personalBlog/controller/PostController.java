@@ -129,7 +129,6 @@ public class PostController {
         }
     }
     
-    // Add this method to check if user is admin, useful in views for conditional UI elements
     @ModelAttribute("isAdmin")
     public boolean isAdmin(Authentication authentication) {
         if (authentication == null) {

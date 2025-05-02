@@ -36,12 +36,6 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    /**
-     * Builds a new User entity from the registration DTO.
-     *
-     * @param registrationDto The user registration data.
-     * @return A new User entity populated with data from the DTO.
-     */
     private User buildUserFromDto(UserRegistrationDto registrationDto) {
         User newUser = new User();
         newUser.setUsername(registrationDto.getUsername());

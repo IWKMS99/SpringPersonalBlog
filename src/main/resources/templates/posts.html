@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<div class="actions" sec:authorize="hasRole('ADMIN')">
+<div class="actions" sec:authorize="isAuthenticated()">
     <a th:href="@{/post/new}" class="btn btn-primary">Создать новый пост</a>
 </div>
 
@@ -34,7 +34,8 @@
     <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
 <div class="post-actions">
     <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
-    <div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}" style="display: inline-block;">
+    <div
+        th:if="${post.author != null and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}" style="display: inline-block;">
         <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display: inline;">
             <button type="submit" class="btn btn-edit">Редактировать</button>
         </form>

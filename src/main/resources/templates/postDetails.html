@@ -14,9 +14,11 @@
 </div>
 
 <div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}">
-    <a th:href="@{/post/{id}/edit(id=${post.id})}" class="btn btn-primary">Edit</a>
+    <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display:inline;">
+        <button type="submit" class="btn btn-primary">Редактировать</button>
+    </form>
     <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display:inline;">
-        <button type="submit" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Удалить</button>
     </form>
 </div>
 </body>

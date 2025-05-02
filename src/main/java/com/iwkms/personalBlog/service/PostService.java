@@ -40,7 +40,7 @@ public class PostService {
     public Optional<Post> updatePost(Long id, Post postDetails, User currentUser) {
         return postRepository.findById(id)
                 .map(existingPost -> {
-                    if (!isAuthorizedToModify(existingPost, currentUser)) {
+                    if (isAuthorizedToModify(existingPost, currentUser)) {
                         throw new UnauthorizedAccessException("You are not authorized to update this post");
                     }
                     existingPost.setTitle(postDetails.getTitle());
@@ -56,7 +56,7 @@ public class PostService {
             throw new RuntimeException("Post with id " + id + " not found");
         }
         
-        if (!isAuthorizedToModify(postToDelete.get(), currentUser)) {
+        if (isAuthorizedToModify(postToDelete.get(), currentUser)) {
             throw new UnauthorizedAccessException("You are not authorized to delete this post");
         }
         
@@ -64,13 +64,11 @@ public class PostService {
     }
     
     private boolean isAuthorizedToModify(Post post, User user) {
-        // Admin can modify any post
         if (user.getRoles().contains("ROLE_ADMIN")) {
-            return true;
+            return false;
         }
         
-        // Users can only modify their own posts
-        return post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
+        return post.getAuthor() == null || !post.getAuthor().getId().equals(user.getId());
     }
     
     public static class UnauthorizedAccessException extends RuntimeException {
