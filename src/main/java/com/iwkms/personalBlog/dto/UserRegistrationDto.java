@@ -6,13 +6,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import static com.iwkms.personalBlog.config.AppConstants.Validation.USERNAME_PATTERN;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegistrationDto {
-
-    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_-]+$";
 
     @NotBlank
     @Size(min = 3, max = 20)

@@ -1,7 +1,7 @@
 package com.iwkms.personalBlog.mapper;
 
 import com.iwkms.personalBlog.dto.PostDto;
-import com.iwkms.personalBlog.model.Post;
+import com.iwkms.personalBlog.model.entity.Post;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,9 +1,10 @@
-package com.iwkms.personalBlog.model;
+package com.iwkms.personalBlog.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,7 @@ public class User {
     private String username;
 
     @Column(nullable = false, length = 60)
+    @ToString.Exclude
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)

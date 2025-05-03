@@ -1,6 +1,6 @@
 package com.iwkms.personalBlog.service;
 
-import com.iwkms.personalBlog.model.User;
+import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_PREFIX;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -45,7 +47,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private List<GrantedAuthority> getAuthorities(Set<String> roles) {
         return roles.stream()
                 .map(role -> {
-                    String formattedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+                    String formattedRole = role.startsWith(ROLE_PREFIX) ? role : ROLE_PREFIX + role;
                     return new SimpleGrantedAuthority(formattedRole);
                 })
                 .collect(Collectors.toList());

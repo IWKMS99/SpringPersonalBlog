@@ -13,23 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static com.iwkms.personalBlog.config.AppConstants.Attributes.USER_DTO_ATTRIBUTE;
+import static com.iwkms.personalBlog.config.AppConstants.Messages.*;
+import static com.iwkms.personalBlog.config.AppConstants.Views.*;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
-
-    // View names as constants
-    private static final String LOGIN_VIEW = "login";
-    private static final String LOGOUT_VIEW = "logout";
-    private static final String REGISTRATION_VIEW = "registration";
-
-    // Message constants
-    private static final String REGISTRATION_SUCCESS_KEY = "registrationSuccess";
-    private static final String REGISTRATION_ERROR_KEY = "registrationError";
-    private static final String SUCCESS_MESSAGE = "Регистрация прошла успешно! Теперь вы можете войти.";
-    private static final String GENERIC_ERROR_MESSAGE = "Произошла ошибка при регистрации.";
-
-    // Form attribute name
-    private static final String USER_DTO_ATTRIBUTE = "userDto";
 
     private final UserService userService;
 

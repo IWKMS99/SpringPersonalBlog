@@ -1,7 +1,7 @@
 package com.iwkms.personalBlog.service;
 
 import com.iwkms.personalBlog.dto.UserRegistrationDto;
-import com.iwkms.personalBlog.model.User;
+import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
+import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_USER;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final String DEFAULT_USER_ROLE = "USER";
-    private static final String ROLE_PREFIX = "ROLE_";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,7 +36,7 @@ public class UserService {
         User newUser = new User();
         newUser.setUsername(registrationDto.getUsername());
         newUser.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-        newUser.setRoles(Collections.singleton(ROLE_PREFIX + DEFAULT_USER_ROLE));
+        newUser.setRoles(Collections.singleton(ROLE_USER));
         newUser.setEnabled(true);
         return newUser;
     }

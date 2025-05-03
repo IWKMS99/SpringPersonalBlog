@@ -1,31 +1,29 @@
 package com.iwkms.personalBlog.service;
 
-import com.iwkms.personalBlog.model.Post;
-import com.iwkms.personalBlog.model.User;
+import com.iwkms.personalBlog.model.entity.Post;
+import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.PostRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_ADMIN;
+import static com.iwkms.personalBlog.config.AppConstants.Security.SAFE_HTML_POLICY;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PostService {
-    private static final Logger log = LogManager.getLogger(PostService.class);
     private final PostRepository postRepository;
-
-    private static final PolicyFactory SAFE_HTML = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
 
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
 
     private String sanitize(String raw) {
-        return raw != null ? SAFE_HTML.sanitize(raw) : null;
+        return raw != null ? SAFE_HTML_POLICY.sanitize(raw) : null;
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +73,7 @@ public class PostService {
     }
 
     private boolean isNotAuthorizedToModify(Post post, User user) {
-        if (user.getRoles().contains("ROLE_ADMIN")) {
+        if (user.getRoles().contains(ROLE_ADMIN)) {
             return false;
         }
 

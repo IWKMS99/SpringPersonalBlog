@@ -2,8 +2,8 @@ package com.iwkms.personalBlog.controller;
 
 import com.iwkms.personalBlog.dto.PostDto;
 import com.iwkms.personalBlog.mapper.PostMapper;
-import com.iwkms.personalBlog.model.Post;
-import com.iwkms.personalBlog.model.User;
+import com.iwkms.personalBlog.model.entity.Post;
+import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
 import com.iwkms.personalBlog.service.PostService;
 import jakarta.validation.Valid;
@@ -20,31 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+import static com.iwkms.personalBlog.config.AppConstants.Attributes.*;
+import static com.iwkms.personalBlog.config.AppConstants.Messages.*;
+import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_ADMIN;
+import static com.iwkms.personalBlog.config.AppConstants.Views.*;
+
 @Controller
 public class PostController {
-    // View names
-    private static final String REDIRECT_HOME = "redirect:/";
-    private static final String REDIRECT_POST_DETAIL = "redirect:/post/%d";
-    private static final String VIEW_POSTS = "posts";
-    private static final String VIEW_POST_DETAILS = "postDetails";
-    private static final String VIEW_POST_FORM = "postForm";
-    private static final String VIEW_POST_EDIT_FORM = "postEditForm";
-
-    // Model attributes
-    private static final String ATTR_ERROR_MESSAGE = "errorMessage";
-    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
-    private static final String ATTR_POST = "post";
-    private static final String ATTR_POSTS = "posts";
-
-    // Messages
-    private static final String MSG_POST_NOT_FOUND = "Post not found";
-    private static final String MSG_POST_CREATED = "Post successfully created";
-    private static final String MSG_POST_UPDATED = "Post successfully updated";
-    private static final String MSG_POST_DELETED = "Post successfully deleted";
-    private static final String MSG_USER_NOT_FOUND = "User not found";
-
-    // Add new error message
-    private static final String MSG_UNAUTHORIZED = "You don't have permission to perform this action";
 
     private final PostService postService;
     private final UserRepository userRepository;
@@ -158,7 +140,7 @@ public class PostController {
             return false;
         }
         return authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals(ROLE_ADMIN));
     }
 
     private String handlePostNotFound(RedirectAttributes redirectAttributes) {
