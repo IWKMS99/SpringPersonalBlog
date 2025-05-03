@@ -26,7 +26,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PostController.class)
@@ -44,31 +45,13 @@ public class PostControllerTest {
     @Autowired
     private PostMapper postMapper;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public PostService postService() {
-            return Mockito.mock(PostService.class);
-        }
-
-        @Bean
-        public UserRepository userRepository() {
-            return Mockito.mock(UserRepository.class);
-        }
-
-        @Bean
-        public PostMapper postMapper() {
-            return Mockito.mock(PostMapper.class);
-        }
-    }
-
     @BeforeEach
     void setUp() {
         Mockito.reset(postService, userRepository, postMapper);
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testListPosts() throws Exception {
         List<Post> posts = Arrays.asList(new Post(), new Post());
         when(postService.getAllPosts()).thenReturn(posts);
@@ -80,7 +63,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testShowPostFound() throws Exception {
         Post post = new Post();
         post.setId(1L);
@@ -93,7 +76,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testShowPostNotFound() throws Exception {
         when(postService.getPostById(1L)).thenReturn(Optional.empty());
 
@@ -104,7 +87,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testShowCreateForm() throws Exception {
         mockMvc.perform(get("/post/new"))
                 .andExpect(status().isOk())
@@ -113,7 +96,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testCreatePostSuccess() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -138,11 +121,11 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testCreatePostValidationErrors() throws Exception {
         mockMvc.perform(post("/post/new")
-                        .param("title", "") // Пустой заголовок
-                        .param("content", "Short") // Слишком короткий контент
+                        .param("title", "")
+                        .param("content", "Short")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("postForm"))
@@ -150,7 +133,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testShowUpdateFormPostFound() throws Exception {
         Post post = new Post();
         post.setId(1L);
@@ -169,7 +152,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testShowUpdateFormPostNotFound() throws Exception {
         when(postService.getPostById(1L)).thenReturn(Optional.empty());
 
@@ -180,7 +163,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testUpdatePostSuccess() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -206,7 +189,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testUpdatePostUnauthorized() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -214,7 +197,7 @@ public class PostControllerTest {
         post.setId(1L);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(postService.getPostById(1L)).thenReturn(Optional.of(post)); // Add this to ensure post is found
+        when(postService.getPostById(1L)).thenReturn(Optional.of(post));
         when(postMapper.toEntity(any(PostDto.class))).thenReturn(post);
         when(postService.updatePost(eq(1L), any(Post.class), eq(user)))
                 .thenThrow(new PostService.UnauthorizedAccessException("Unauthorized"));
@@ -229,11 +212,11 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testUpdatePostValidationErrors() throws Exception {
         mockMvc.perform(post("/post/1/edit")
-                        .param("title", "") // Пустой заголовок
-                        .param("content", "Short") // Слишком короткий контент
+                        .param("title", "")
+                        .param("content", "Short")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("postEditForm"))
@@ -241,7 +224,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testDeletePostSuccess() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -256,7 +239,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testDeletePostUnauthorized() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -268,5 +251,23 @@ public class PostControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attribute("errorMessage", "You don't have permission to perform this action"));
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public PostService postService() {
+            return Mockito.mock(PostService.class);
+        }
+
+        @Bean
+        public UserRepository userRepository() {
+            return Mockito.mock(UserRepository.class);
+        }
+
+        @Bean
+        public PostMapper postMapper() {
+            return Mockito.mock(PostMapper.class);
+        }
     }
 }

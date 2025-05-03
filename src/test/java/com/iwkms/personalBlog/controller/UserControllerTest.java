@@ -15,7 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
@@ -27,21 +28,13 @@ public class UserControllerTest {
     @Autowired
     private UserService userService;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public UserService userService() {
-            return Mockito.mock(UserService.class);
-        }
-    }
-
     @BeforeEach
     void setUp() {
         Mockito.reset(userService);
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testDisplayLoginPage() throws Exception {
         mockMvc.perform(get("/user/login"))
                 .andExpect(status().isOk())
@@ -49,7 +42,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testDisplayLogoutConfirmation() throws Exception {
         mockMvc.perform(get("/user/logout"))
                 .andExpect(status().isOk())
@@ -57,7 +50,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testDisplayRegistrationForm() throws Exception {
         mockMvc.perform(get("/user/register"))
                 .andExpect(status().isOk())
@@ -66,7 +59,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testProcessRegistrationSuccess() throws Exception {
         doNothing().when(userService).registerNewUser(any(UserRegistrationDto.class));
 
@@ -82,11 +75,11 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testProcessRegistrationValidationErrors() throws Exception {
         mockMvc.perform(post("/user/register")
-                        .param("username", "") // Пустое имя пользователя
-                        .param("password", "short") // Слишком короткий пароль
+                        .param("username", "")
+                        .param("password", "short")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("registration"))
@@ -94,7 +87,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testProcessRegistrationUserAlreadyExists() throws Exception {
         doThrow(new UserService.UserAlreadyExistException("User with username 'existinguser' already exists."))
                 .when(userService).registerNewUser(any(UserRegistrationDto.class));
@@ -109,7 +102,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "testuser")
     public void testProcessRegistrationGenericException() throws Exception {
         doThrow(new RuntimeException("Some error"))
                 .when(userService).registerNewUser(any(UserRegistrationDto.class));
@@ -121,5 +114,13 @@ public class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/register?error"))
                 .andExpect(flash().attribute("registrationError", "Произошла ошибка при регистрации."));
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public UserService userService() {
+            return Mockito.mock(UserService.class);
+        }
     }
 }

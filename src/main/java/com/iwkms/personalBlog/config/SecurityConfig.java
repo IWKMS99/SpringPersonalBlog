@@ -61,15 +61,10 @@ public class SecurityConfig {
         );
     }
 
-    // Добавить этот метод
     private void configureExceptionHandling(HttpSecurity http) throws Exception {
         http.exceptionHandling(exceptions -> exceptions
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.sendRedirect("/?error=accessDenied");
-                })
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.sendRedirect(LOGIN_PAGE_URL);
-                })
+                .accessDeniedHandler((ignored, response, ignored1) -> response.sendRedirect("/?error=accessDenied"))
+                .authenticationEntryPoint((ignored, response, ignored1) -> response.sendRedirect(LOGIN_PAGE_URL))
         );
     }
 }

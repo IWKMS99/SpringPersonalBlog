@@ -3,8 +3,6 @@ package com.iwkms.personalBlog.service;
 import com.iwkms.personalBlog.model.entity.Post;
 import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.PostRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

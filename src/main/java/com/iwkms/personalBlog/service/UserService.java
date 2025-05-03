@@ -23,7 +23,7 @@ public class UserService {
     @Transactional
     public void registerNewUser(UserRegistrationDto registrationDto) throws UserAlreadyExistException {
         userRepository.findByUsername(registrationDto.getUsername())
-                .ifPresent(existingUser -> {
+                .ifPresent(ignored -> {
                     throw new UserAlreadyExistException("User with username '" + registrationDto.getUsername() + "' already exists.");
                 });
 

@@ -6,13 +6,17 @@ import com.iwkms.personalBlog.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_ADMIN;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,7 +86,8 @@ class PostServiceTest {
 
     @Test
     void deletePost_asAdmin_shouldDelete() {
-        User admin = new User(); admin.setRoles(Set.of(ROLE_ADMIN));
+        User admin = new User();
+        admin.setRoles(Set.of(ROLE_ADMIN));
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         postService.deletePost(1L, admin);
         verify(postRepository).deleteById(1L);
