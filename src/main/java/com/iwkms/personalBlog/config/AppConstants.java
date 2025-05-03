@@ -32,7 +32,7 @@ public final class AppConstants {
 
         //Post
         public static final String REDIRECT_HOME = "redirect:/";
-        public static final String REDIRECT_POST_DETAIL = "redirect:/post/%d";
+        public static final String REDIRECT_POST_DETAIL = "redirect:/post/";
         public static final String VIEW_POSTS = "posts";
         public static final String VIEW_POST_DETAILS = "postDetails";
         public static final String VIEW_POST_FORM = "postForm";

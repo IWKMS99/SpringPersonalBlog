@@ -95,10 +95,10 @@ public class PostController {
 
     @PostMapping("/post/{id}/edit")
     public String updatePost(@PathVariable Long id,
-                             @Valid @ModelAttribute("postDto") PostDto postDto,
-                             BindingResult bindingResult,
-                             Authentication authentication,
-                             RedirectAttributes redirectAttributes) {
+                         @Valid @ModelAttribute("postDto") PostDto postDto,
+                         BindingResult bindingResult,
+                         Authentication authentication,
+                         RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return VIEW_POST_EDIT_FORM;
         }
@@ -109,7 +109,7 @@ public class PostController {
             return postService.updatePost(id, updated, currentUser)
                     .map(post -> {
                         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_UPDATED);
-                        return String.format(REDIRECT_POST_DETAIL, id);
+                        return REDIRECT_POST_DETAIL + id;
                     })
                     .orElseGet(() -> handlePostNotFound(redirectAttributes));
         } catch (PostService.UnauthorizedAccessException e) {

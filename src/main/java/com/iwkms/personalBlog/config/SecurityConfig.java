@@ -29,6 +29,7 @@ public class SecurityConfig {
         configureRequestAuthorization(http);
         configureLoginForm(http);
         configureLogout(http);
+        configureExceptionHandling(http);
         http.userDetailsService(userDetailsService);
 
         return http.build();
@@ -57,6 +58,18 @@ public class SecurityConfig {
                 .logoutUrl(LOGOUT_URL)
                 .logoutSuccessUrl(LOGOUT_SUCCESS_URL)
                 .permitAll()
+        );
+    }
+
+    // Добавить этот метод
+    private void configureExceptionHandling(HttpSecurity http) throws Exception {
+        http.exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.sendRedirect("/?error=accessDenied");
+                })
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendRedirect(LOGIN_PAGE_URL);
+                })
         );
     }
 }
