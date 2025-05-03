@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Регистрация</title>
+    <style>
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,15 +19,21 @@
     Ошибка регистрации. Возможно, пользователь с таким именем уже существует.
 </div>
 
-<form th:action="@{/register}" th:object="${userDto}" method="post">
+<div th:if="${registrationError}" style="color: red;">
+    <p th:text="${registrationError}"></p>
+</div>
+
+<form th:action="@{/user/register}" th:object="${userDto}" method="post">
     <div>
         <label for="username">Имя пользователя:</label><br>
         <input type="text" id="username" th:field="*{username}" required>
+        <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
     </div>
     <br>
     <div>
         <label for="password">Пароль:</label><br>
         <input type="password" id="password" th:field="*{password}" required>
+        <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
     </div>
     <br>
     <div>
@@ -29,7 +42,7 @@
 </form>
 
 <br>
-<a th:href="@{/login}">Уже есть аккаунт? Войти</a>
+<a th:href="@{/user/login}">Уже есть аккаунт? Войти</a>
 <br>
 <a th:href="@{/}">Вернуться к списку постов</a>
 

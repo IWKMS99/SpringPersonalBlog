@@ -1,4 +1,5 @@
 package com.iwkms.personalBlog.service;
+
 import com.iwkms.personalBlog.model.Post;
 import com.iwkms.personalBlog.model.User;
 import com.iwkms.personalBlog.repository.PostRepository;
@@ -6,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -29,18 +31,18 @@ public class PostService {
     }
 
     @Transactional
-    public Post createPost(Post post) {
+    public void createPost(Post post) {
         if (post.getAuthor() == null) {
             throw new IllegalArgumentException("Author cannot be null");
         }
-        return postRepository.save(post);
+        postRepository.save(post);
     }
 
     @Transactional
     public Optional<Post> updatePost(Long id, Post postDetails, User currentUser) {
         return postRepository.findById(id)
                 .map(existingPost -> {
-                    if (isAuthorizedToModify(existingPost, currentUser)) {
+                    if (isNotAuthorizedToModify(existingPost, currentUser)) {
                         throw new UnauthorizedAccessException("You are not authorized to update this post");
                     }
                     existingPost.setTitle(postDetails.getTitle());
@@ -55,22 +57,23 @@ public class PostService {
         if (postToDelete.isEmpty()) {
             throw new RuntimeException("Post with id " + id + " not found");
         }
-        
-        if (isAuthorizedToModify(postToDelete.get(), currentUser)) {
+
+        if (isNotAuthorizedToModify(postToDelete.get(), currentUser)) {
             throw new UnauthorizedAccessException("You are not authorized to delete this post");
         }
-        
+
         postRepository.deleteById(id);
     }
-    
-    private boolean isAuthorizedToModify(Post post, User user) {
+
+    private boolean isNotAuthorizedToModify(Post post, User user) {
         if (user.getRoles().contains("ROLE_ADMIN")) {
             return false;
         }
-        
-        return post.getAuthor() == null || !post.getAuthor().getId().equals(user.getId());
+
+        boolean isAuthor = post.getAuthor() != null && post.getAuthor().getId().equals(user.getId());
+        return !isAuthor;
     }
-    
+
     public static class UnauthorizedAccessException extends RuntimeException {
         public UnauthorizedAccessException(String message) {
             super(message);

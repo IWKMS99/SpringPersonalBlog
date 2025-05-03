@@ -14,10 +14,10 @@
 <div class="navigation" style="margin-bottom: 20px;">
     <div sec:authorize="isAuthenticated()">
         <span>Привет, <span th:text="${#authentication.getName()}"></span>!</span>
-        <a th:href="@{/logout}" class="btn btn-primary">Выйти</a>
+        <a th:href="@{/user/logout}" class="btn btn-primary">Выйти</a>
     </div>
     <div sec:authorize="!isAuthenticated()">
-        <a th:href="@{/login}" class="btn btn-primary">Войти</a>
+        <a th:href="@{/user/login}" class="btn btn-primary">Войти</a>
     </div>
 </div>
 
@@ -29,25 +29,27 @@
     <p>Пока нет ни одного поста.</p>
 </div>
 
-<div th:each="post : ${posts}" class="post-item" style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+<div th:each="post : ${posts}" class="post-item"
+     style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
     <h2 th:text="${post.title}">Заголовок Поста</h2>
     <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
-<div class="post-actions">
-    <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
-    <div
-        th:if="${post.author != null and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}" style="display: inline-block;">
-        <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display: inline;">
-            <button type="submit" class="btn btn-edit">Редактировать</button>
-        </form>
-        <form th:action="@{/post/{id}/delete(id=${post.id})}"
-              method="post"
-              style="display: inline;"
-              th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'"
-              onsubmit="return confirm(this.getAttribute('data-confirm-message'));">
-            <button type="submit" class="btn btn-delete">Удалить</button>
-        </form>
+    <div class="post-actions">
+        <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
+        <div
+                th:if="${post.author != null and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}"
+                style="display: inline-block;">
+            <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display: inline;">
+                <button type="submit" class="btn btn-edit">Редактировать</button>
+            </form>
+            <form th:action="@{/post/{id}/delete(id=${post.id})}"
+                  method="post"
+                  style="display: inline;"
+                  th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'"
+                  onsubmit="return confirm(this.getAttribute('data-confirm-message'));">
+                <button type="submit" class="btn btn-delete">Удалить</button>
+            </form>
+        </div>
     </div>
-</div>
 </div>
 
 </body>

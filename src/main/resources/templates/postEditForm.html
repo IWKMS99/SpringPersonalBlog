@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Редактирование Поста</title>
+    <style>
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 
 <h1>Редактирование Поста</h1>
 
-<form th:action="@{/post/{id}/edit(id=${post.id})}" th:object="${post}" method="post">
+<form th:action="@{/post/{id}/edit(id=${postDto.id})}" th:object="${postDto}" method="post">
+    <input type="hidden" th:field="*{id}">
     <div>
         <label for="title">Заголовок:</label><br>
-        <input type="text" id="title" th:field="*{title}" required size="50">
+        <input type="text" id="title" th:field="*{title}" size="50">
+        <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
     </div>
     <br>
     <div>
         <label for="content">Содержание:</label><br>
-        <textarea id="content" th:field="*{content}" rows="10" cols="50" required></textarea>
+        <textarea id="content" th:field="*{content}" rows="10" cols="50"></textarea>
+        <div class="error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
     </div>
     <br>
     <div>
@@ -25,7 +35,7 @@
 </form>
 
 <br>
-<a th:href="@{/}">Отмена</a>
+<a th:href="@{/post/{id}(id=${postDto.id})}">Отмена</a>
 
 </body>
 </html>

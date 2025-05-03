@@ -14,13 +14,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private static final String ROLE_USER = "ROLE_USER";
 
-    private static final String ADMIN_ROLE = "ADMIN";
-    private static final String USER_ROLE = "USER";
-    private static final String[] PUBLIC_URLS = {"/", "/post/*/view", "/login", "/css/**", "/js/**", "/register"};
-    private static final String LOGIN_PAGE_URL = "/login";
+    // URL patterns grouped by access level
+    private static final String[] PUBLIC_URLS = {"/", "/post/*", "/user/login", "/user/register"};
+    private static final String[] PUBLIC_RESOURCE_URLS = {"/css/**", "/js/**"};
+    private static final String[] AUTHENTICATED_URLS = {"/post/new"};
+    private static final String[] USER_CONTENT_URLS = {"/post/{id}/edit", "/post/{id}/delete"};
+
+    // Authentication configuration constants
+    private static final String LOGIN_PAGE_URL = "/user/login";
     private static final String DEFAULT_SUCCESS_URL = "/";
-    private static final String LOGOUT_URL = "/logout";
+    private static final String LOGOUT_URL = "/user/logout";
     private static final String LOGOUT_SUCCESS_URL = "/";
 
     private final CustomUserDetailsService userDetailsService;
@@ -32,24 +38,37 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/post/new").authenticated()
-                        .requestMatchers("/post/{id}/edit", "/post/{id}/delete").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage(LOGIN_PAGE_URL)
-                        .defaultSuccessUrl(DEFAULT_SUCCESS_URL, true)
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl(LOGOUT_URL)
-                        .logoutSuccessUrl(LOGOUT_SUCCESS_URL)
-                        .permitAll()
-                )
-                .userDetailsService(userDetailsService);
+        configureRequestAuthorization(http);
+        configureLoginForm(http);
+        configureLogout(http);
+        http.userDetailsService(userDetailsService);
+
         return http.build();
+    }
+
+    private void configureRequestAuthorization(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(PUBLIC_URLS).permitAll()
+                .requestMatchers(PUBLIC_RESOURCE_URLS).permitAll()
+                .requestMatchers(AUTHENTICATED_URLS).authenticated()
+                .requestMatchers(USER_CONTENT_URLS).authenticated()
+                .anyRequest().authenticated()
+        );
+    }
+
+    private void configureLoginForm(HttpSecurity http) throws Exception {
+        http.formLogin(form -> form
+                .loginPage(LOGIN_PAGE_URL)
+                .defaultSuccessUrl(DEFAULT_SUCCESS_URL, true)
+                .permitAll()
+        );
+    }
+
+    private void configureLogout(HttpSecurity http) throws Exception {
+        http.logout(logout -> logout
+                .logoutUrl(LOGOUT_URL)
+                .logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+                .permitAll()
+        );
     }
 }
