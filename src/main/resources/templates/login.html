@@ -17,7 +17,7 @@
 </div>
 
 <div th:if="${registrationSuccess}" style="color: green;">
-    <p th:text="${registrationSuccess}"></p>
+    <p th:utext="${registrationSuccess}"></p>
 </div>
 
 <form th:action="@{/user/login}" method="post">

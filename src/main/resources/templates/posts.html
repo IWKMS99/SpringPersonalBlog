@@ -32,7 +32,7 @@
 <div th:each="post : ${posts}" class="post-item"
      style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
     <h2 th:text="${post.title}">Заголовок Поста</h2>
-    <p th:text="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
+    <p th:utext="${#strings.abbreviate(post.content, 150)}">Краткое содержание поста...</p>
     <div class="post-actions">
         <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-read">Читать далее...</a>
         <div

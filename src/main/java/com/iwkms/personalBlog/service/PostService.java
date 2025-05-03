@@ -5,6 +5,8 @@ import com.iwkms.personalBlog.model.User;
 import com.iwkms.personalBlog.repository.PostRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +18,14 @@ public class PostService {
     private static final Logger log = LogManager.getLogger(PostService.class);
     private final PostRepository postRepository;
 
+    private static final PolicyFactory SAFE_HTML = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
+    }
+
+    private String sanitize(String raw) {
+        return raw != null ? SAFE_HTML.sanitize(raw) : null;
     }
 
     @Transactional(readOnly = true)
@@ -35,6 +43,7 @@ public class PostService {
         if (post.getAuthor() == null) {
             throw new IllegalArgumentException("Author cannot be null");
         }
+        post.setContent(sanitize(post.getContent()));
         postRepository.save(post);
     }
 
@@ -46,7 +55,7 @@ public class PostService {
                         throw new UnauthorizedAccessException("You are not authorized to update this post");
                     }
                     existingPost.setTitle(postDetails.getTitle());
-                    existingPost.setContent(postDetails.getContent());
+                    existingPost.setContent(sanitize(postDetails.getContent()));
                     return postRepository.save(existingPost);
                 });
     }

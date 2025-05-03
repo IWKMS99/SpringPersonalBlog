@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${post.title} ?: 'Детали Поста'">Детали Поста</title>
+    <title th:utext="${post.title} ?: 'Детали Поста'">Детали Поста</title>
 </head>
 <body>
 
 <a th:href="@{/}">Вернуться к списку постов</a>
 
-<h1 th:text="${post.title}">Заголовок Поста</h1>
-<div style="white-space: pre-wrap;" th:text="${post.content}">
+<h1 th:utext="${post.title}">Заголовок Поста</h1>
+<div style="white-space: pre-wrap;" th:utext="${post.content}">
     Полное содержание поста...
 </div>
 

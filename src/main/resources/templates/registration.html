@@ -20,7 +20,7 @@
 </div>
 
 <div th:if="${registrationError}" style="color: red;">
-    <p th:text="${registrationError}"></p>
+    <p th:utext="${registrationError}"></p>
 </div>
 
 <form th:action="@{/user/register}" th:object="${userDto}" method="post">
