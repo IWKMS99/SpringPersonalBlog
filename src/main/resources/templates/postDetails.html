@@ -2,24 +2,34 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:utext="${post.title} ?: 'Детали Поста'">Детали Поста</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container mt-4">
+    <div class="mb-3">
+        <a th:href="@{/}" class="btn btn-outline-secondary">← Вернуться к списку постов</a>
+    </div>
 
-<a th:href="@{/}">Вернуться к списку постов</a>
+    <h1 th:utext="${post.title}">Заголовок Поста</h1>
+    <hr>
+    <div style="white-space: pre-wrap;" th:utext="${post.content}" class="mb-4">
+        Полное содержание поста...
+    </div>
 
-<h1 th:utext="${post.title}">Заголовок Поста</h1>
-<div style="white-space: pre-wrap;" th:utext="${post.content}">
-    Полное содержание поста...
+    <div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}">
+        <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display:inline;">
+            <button type="submit" class="btn btn-primary me-2">Редактировать</button>
+        </form>
+        <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display:inline;"
+              th:data-confirm-message="'Вы уверены, что хотите удалить пост \'' + ${post.title} + '\'?'"
+              onsubmit="return confirm(this.getAttribute('data-confirm-message'));">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+    </div>
 </div>
 
-<div th:if="${post.author != null and #authorization.expression('isAuthenticated()') and (#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == post.author.username)}">
-    <form th:action="@{/post/{id}/edit(id=${post.id})}" method="get" style="display:inline;">
-        <button type="submit" class="btn btn-primary">Редактировать</button>
-    </form>
-    <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display:inline;">
-        <button type="submit" class="btn btn-danger">Удалить</button>
-    </form>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
