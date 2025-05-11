@@ -34,7 +34,10 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        dto = new UserRegistrationDto("ivan", "password123");
+        dto = new UserRegistrationDto();
+        dto.setUsername("ivan");
+        dto.setPassword("password123");
+        dto.setConfirmPassword("password123");
     }
 
     @Test
@@ -58,5 +61,14 @@ class UserServiceTest {
                 .thenReturn(Optional.of(new User()));
         assertThatThrownBy(() -> userService.registerNewUser(dto))
                 .isInstanceOf(UserService.UserAlreadyExistException.class);
+    }
+    
+    @Test
+    void registerNewUser_passwordMismatch_shouldThrow() {
+        dto.setConfirmPassword("different");
+        
+        assertThatThrownBy(() -> userService.registerNewUser(dto))
+                .isInstanceOf(UserService.PasswordMismatchException.class)
+                .hasMessage("Пароли не совпадают");
     }
 }

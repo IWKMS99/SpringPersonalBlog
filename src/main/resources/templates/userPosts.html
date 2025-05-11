@@ -3,24 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Персональный блог</title>
+    <title>Мои посты | Персональный блог</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Персональный блог</h1>
+            <h1>Мои посты</h1>
             <div>
-                <a sec:authorize="isAuthenticated()" th:href="@{/user/posts}" class="btn btn-outline-secondary me-2">Мои посты</a>
-                <a sec:authorize="isAuthenticated()" th:href="@{/post/new}" class="btn btn-primary me-2">Создать пост</a>
-                <a th:href="@{/categories}" class="btn btn-info me-2">Категории</a>
-                <div sec:authorize="isAuthenticated()" class="btn-group">
-                    <a th:href="@{/user/logout}" class="btn btn-outline-danger">Выйти</a>
-                </div>
-                <div sec:authorize="!isAuthenticated()" class="btn-group">
-                    <a th:href="@{/user/login}" class="btn btn-outline-primary me-2">Войти</a>
-                    <a th:href="@{/user/register}" class="btn btn-outline-success">Регистрация</a>
-                </div>
+                <a th:href="@{/}" class="btn btn-outline-secondary me-2">На главную</a>
+                <a th:href="@{/post/new}" class="btn btn-primary">Создать пост</a>
             </div>
         </div>
 
@@ -32,30 +24,8 @@
             <span th:text="${successMessage}"></span>
         </div>
 
-        <!-- Фильтры и поиск -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <form th:action="@{/}" method="get" class="d-flex">
-                    <select name="categoryId" class="form-select me-2">
-                        <option value="">Все категории</option>
-                        <option th:each="category : ${categories}" 
-                                th:value="${category.id}" 
-                                th:text="${category.name}"
-                                th:selected="${category.id == selectedCategoryId}"></option>
-                    </select>
-                    <button type="submit" class="btn btn-outline-secondary">Фильтр</button>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <form th:action="@{/}" method="get" class="d-flex">
-                    <input type="text" name="search" class="form-control me-2" placeholder="Поиск..." th:value="${search}">
-                    <button type="submit" class="btn btn-outline-primary">Поиск</button>
-                </form>
-            </div>
-        </div>
-
         <div th:if="${#lists.isEmpty(posts)}" class="alert alert-info">
-            Нет доступных постов
+            У вас пока нет постов
         </div>
 
         <div th:each="post : ${posts}" class="card mb-4">
@@ -64,10 +34,6 @@
                 
                 <div class="d-flex justify-content-between mb-3">
                     <div class="text-muted">
-                        <small>
-                            Автор: <span th:text="${post.author != null ? post.author.username : 'Неизвестно'}"></span>
-                        </small>
-                        <br>
                         <small th:if="${post.createdAt != null}">
                             Создано: <span th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                         </small>
@@ -84,14 +50,12 @@
                 <div class="d-flex justify-content-between">
                     <a th:href="@{/post/{id}(id=${post.id})}" class="btn btn-sm btn-primary">Читать далее</a>
                     
-                    <div sec:authorize="isAuthenticated()">
-                        <a th:if="${isAdmin || (post.author != null && post.author.username == #authentication.name)}" 
-                           th:href="@{/post/{id}/edit(id=${post.id})}" class="btn btn-sm btn-warning me-2">
+                    <div>
+                        <a th:href="@{/post/{id}/edit(id=${post.id})}" class="btn btn-sm btn-warning me-2">
                             Редактировать
                         </a>
                         
-                        <form th:if="${isAdmin || (post.author != null && post.author.username == #authentication.name)}" 
-                              th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display: inline-block;"
+                        <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display: inline-block;"
                               onsubmit="return confirm('Вы уверены, что хотите удалить этот пост?');">
                             <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
                         </form>
@@ -104,18 +68,18 @@
         <nav th:if="${totalPages > 1}" aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                    <a class="page-link" th:href="@{/(page=${currentPage - 1}, size=${size}, categoryId=${selectedCategoryId}, search=${search})}" aria-label="Previous">
+                    <a class="page-link" th:href="@{/user/posts(page=${currentPage - 1}, size=${size})}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 
                 <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
                     th:classappend="${currentPage == i} ? 'active' : ''">
-                    <a class="page-link" th:href="@{/(page=${i}, size=${size}, categoryId=${selectedCategoryId}, search=${search})}" th:text="${i + 1}"></a>
+                    <a class="page-link" th:href="@{/user/posts(page=${i}, size=${size})}" th:text="${i + 1}"></a>
                 </li>
                 
                 <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
-                    <a class="page-link" th:href="@{/(page=${currentPage + 1}, size=${size}, categoryId=${selectedCategoryId}, search=${search})}" aria-label="Next">
+                    <a class="page-link" th:href="@{/user/posts(page=${currentPage + 1}, size=${size})}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -125,4 +89,4 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html> 

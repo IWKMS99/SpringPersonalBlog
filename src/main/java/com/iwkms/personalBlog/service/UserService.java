@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_USER;
 
@@ -16,9 +17,18 @@ import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_USER;
 @RequiredArgsConstructor
 public class UserService {
 
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional(readOnly = true)
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+    
+    @Transactional(readOnly = true)
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
     @Transactional
     public void registerNewUser(UserRegistrationDto registrationDto) throws UserAlreadyExistException {
@@ -26,6 +36,11 @@ public class UserService {
                 .ifPresent(_ -> {
                     throw new UserAlreadyExistException("User with username '" + registrationDto.getUsername() + "' already exists.");
                 });
+
+        // Проверка совпадения паролей (хотя это должно быть проверено аннотацией @PasswordMatch)
+        if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
+            throw new PasswordMismatchException("Пароли не совпадают");
+        }
 
         User newUser = buildUserFromDto(registrationDto);
 
@@ -43,6 +58,12 @@ public class UserService {
 
     public static class UserAlreadyExistException extends RuntimeException {
         public UserAlreadyExistException(String message) {
+            super(message);
+        }
+    }
+    
+    public static class PasswordMismatchException extends RuntimeException {
+        public PasswordMismatchException(String message) {
             super(message);
         }
     }

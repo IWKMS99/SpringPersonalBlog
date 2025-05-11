@@ -66,6 +66,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/register")
                         .param("username", "newuser")
                         .param("password", "password123")
+                        .param("confirmPassword", "password123")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/login"))
@@ -80,10 +81,24 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/register")
                         .param("username", "")
                         .param("password", "short")
+                        .param("confirmPassword", "short")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("registration"))
                 .andExpect(model().attributeHasFieldErrors("userDto", "username", "password"));
+    }
+    
+    @Test
+    @WithMockUser(username = "testuser")
+    public void testProcessRegistrationPasswordMismatch() throws Exception {
+        mockMvc.perform(post("/user/register")
+                        .param("username", "newuser")
+                        .param("password", "password123")
+                        .param("confirmPassword", "different")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("registration"))
+                .andExpect(model().attributeHasFieldErrors("userDto", "confirmPassword"));
     }
 
     @Test
@@ -95,6 +110,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/register")
                         .param("username", "existinguser")
                         .param("password", "password123")
+                        .param("confirmPassword", "password123")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/register?error"))
@@ -110,6 +126,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/register")
                         .param("username", "newuser")
                         .param("password", "password123")
+                        .param("confirmPassword", "password123")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/register?error"))

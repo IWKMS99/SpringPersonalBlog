@@ -1,24 +1,25 @@
 package com.iwkms.personalBlog.controller;
 
 import com.iwkms.personalBlog.dto.PostDto;
+import com.iwkms.personalBlog.mapper.CategoryMapper;
 import com.iwkms.personalBlog.mapper.PostMapper;
 import com.iwkms.personalBlog.model.entity.Post;
 import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
+import com.iwkms.personalBlog.service.CategoryService;
 import com.iwkms.personalBlog.service.PostService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 import static com.iwkms.personalBlog.config.AppConstants.Attributes.*;
 import static com.iwkms.personalBlog.config.AppConstants.Messages.*;
@@ -26,23 +27,44 @@ import static com.iwkms.personalBlog.config.AppConstants.Roles.ROLE_ADMIN;
 import static com.iwkms.personalBlog.config.AppConstants.Views.*;
 
 @Controller
+@RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
     private final UserRepository userRepository;
     private final PostMapper postMapper;
-
-    @Autowired
-    public PostController(PostService postService, UserRepository userRepository, PostMapper postMapper) {
-        this.postService = postService;
-        this.userRepository = userRepository;
-        this.postMapper = postMapper;
-    }
+    private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
 
     @GetMapping("/")
-    public String listPosts(Model model) {
-        List<Post> posts = postService.getAllPosts();
-        model.addAttribute(ATTR_POSTS, posts);
+    public String listPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String search,
+            Model model) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postPage;
+        
+        if (categoryId != null) {
+            postPage = postService.getPostsByCategory(categoryId, pageable);
+            model.addAttribute("selectedCategoryId", categoryId);
+        } else if (search != null && !search.isEmpty()) {
+            postPage = postService.searchPosts(search, pageable);
+            model.addAttribute("search", search);
+        } else {
+            postPage = postService.getAllPosts(pageable);
+        }
+        
+        model.addAttribute(ATTR_POSTS, postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        
+        // Добавляем список категорий для фильтрации
+        model.addAttribute("categories", categoryService.getAllCategories());
+        
         return VIEW_POSTS;
     }
 
@@ -59,6 +81,9 @@ public class PostController {
     @GetMapping("/post/new")
     public String showCreateForm(Model model) {
         model.addAttribute("postDto", new PostDto());
+        model.addAttribute("categories", categoryService.getAllCategories().stream()
+                .map(categoryMapper::toDto)
+                .toList());
         return VIEW_POST_FORM;
     }
 
@@ -66,8 +91,12 @@ public class PostController {
     public String createPost(@Valid @ModelAttribute("postDto") PostDto postDto,
                              BindingResult bindingResult,
                              Authentication authentication,
-                             RedirectAttributes redirectAttributes) {
+                             RedirectAttributes redirectAttributes,
+                             Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.getAllCategories().stream()
+                    .map(categoryMapper::toDto)
+                    .toList());
             return VIEW_POST_FORM;
         }
 
@@ -75,9 +104,9 @@ public class PostController {
             User author = getCurrentUser(authentication);
             Post post = postMapper.toEntity(postDto);
             post.setAuthor(author);
-            postService.createPost(post);
+            Post savedPost = postService.createPost(post);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_CREATED);
-            return REDIRECT_HOME;
+            return REDIRECT_POST_DETAIL + savedPost.getId();
         } catch (RuntimeException e) {
             return handleError(redirectAttributes, e.getMessage());
         }
@@ -88,6 +117,9 @@ public class PostController {
         return postService.getPostById(id)
                 .map(post -> {
                     model.addAttribute("postDto", postMapper.toDto(post));
+                    model.addAttribute("categories", categoryService.getAllCategories().stream()
+                            .map(categoryMapper::toDto)
+                            .toList());
                     return VIEW_POST_EDIT_FORM;
                 })
                 .orElseGet(() -> handlePostNotFound(redirectAttributes));
@@ -98,8 +130,12 @@ public class PostController {
                          @Valid @ModelAttribute("postDto") PostDto postDto,
                          BindingResult bindingResult,
                          Authentication authentication,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.getAllCategories().stream()
+                    .map(categoryMapper::toDto)
+                    .toList());
             return VIEW_POST_EDIT_FORM;
         }
 
@@ -132,6 +168,25 @@ public class PostController {
         } catch (RuntimeException e) {
             return handleError(redirectAttributes, e.getMessage());
         }
+    }
+
+    @GetMapping("/user/posts")
+    public String getUserPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication,
+            Model model) {
+        
+        User currentUser = getCurrentUser(authentication);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postPage = postService.getPostsByAuthor(currentUser, pageable);
+        
+        model.addAttribute(ATTR_POSTS, postPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalItems", postPage.getTotalElements());
+        
+        return "userPosts";
     }
 
     @ModelAttribute("isAdmin")

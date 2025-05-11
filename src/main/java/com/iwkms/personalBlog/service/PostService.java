@@ -2,7 +2,11 @@ package com.iwkms.personalBlog.service;
 
 import com.iwkms.personalBlog.model.entity.Post;
 import com.iwkms.personalBlog.model.entity.User;
+import com.iwkms.personalBlog.repository.CategoryRepository;
 import com.iwkms.personalBlog.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    private final CategoryRepository categoryRepository;
 
     private String sanitize(String raw) {
         return raw != null ? SAFE_HTML_POLICY.sanitize(raw) : null;
@@ -28,6 +30,28 @@ public class PostService {
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
+    
+    @Transactional(readOnly = true)
+    public Page<Post> getAllPosts(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<Post> getPostsByCategory(Long categoryId, Pageable pageable) {
+        return categoryRepository.findById(categoryId)
+                .map(category -> postRepository.findByCategory(category, pageable))
+                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<Post> getPostsByAuthor(User author, Pageable pageable) {
+        return postRepository.findByAuthor(author, pageable);
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<Post> searchPosts(String keyword, Pageable pageable) {
+        return postRepository.searchByKeyword(keyword, pageable);
+    }
 
     @Transactional(readOnly = true)
     public Optional<Post> getPostById(Long id) {
@@ -35,12 +59,12 @@ public class PostService {
     }
 
     @Transactional
-    public void createPost(Post post) {
+    public Post createPost(Post post) {
         if (post.getAuthor() == null) {
             throw new IllegalArgumentException("Author cannot be null");
         }
         post.setContent(sanitize(post.getContent()));
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     @Transactional
@@ -52,6 +76,12 @@ public class PostService {
                     }
                     existingPost.setTitle(postDetails.getTitle());
                     existingPost.setContent(sanitize(postDetails.getContent()));
+                    
+                    // Обновляем категории, если они указаны
+                    if (postDetails.getCategories() != null) {
+                        existingPost.setCategories(postDetails.getCategories());
+                    }
+                    
                     return postRepository.save(existingPost);
                 });
     }

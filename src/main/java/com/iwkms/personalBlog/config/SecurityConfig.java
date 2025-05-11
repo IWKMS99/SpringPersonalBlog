@@ -4,6 +4,7 @@ import com.iwkms.personalBlog.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +15,7 @@ import static com.iwkms.personalBlog.config.AppConstants.Urls.*;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -41,6 +43,9 @@ public class SecurityConfig {
                 .requestMatchers(PUBLIC_RESOURCE_URLS).permitAll()
                 .requestMatchers(AUTHENTICATED_URLS).authenticated()
                 .requestMatchers(USER_CONTENT_URLS).authenticated()
+                .requestMatchers("/categories/new", "/categories/*/edit", "/categories/*/delete").hasRole("ADMIN")
+                .requestMatchers("/categories").permitAll()
+                .requestMatchers("/user/posts").authenticated()
                 .anyRequest().authenticated()
         );
     }
@@ -63,7 +68,6 @@ public class SecurityConfig {
 
     private void configureExceptionHandling(HttpSecurity http) throws Exception {
         http.exceptionHandling(exceptions -> exceptions
-                .accessDeniedHandler((_, response, _) -> response.sendRedirect("/?error=accessDenied"))
                 .authenticationEntryPoint((_, response, _) -> response.sendRedirect(LOGIN_PAGE_URL))
         );
     }
