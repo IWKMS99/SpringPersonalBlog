@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.controller;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.config.SecurityConfig;
 import com.iwkms.personalBlog.dto.CategoryDto;
 import com.iwkms.personalBlog.mapper.CategoryMapper;
@@ -77,8 +78,8 @@ public class CategoryControllerTest {
 
         mockMvc.perform(get("/categories"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("categories"))
-                .andExpect(model().attributeExists("categories"));
+                .andExpect(view().name(AppConstants.Views.VIEW_CATEGORIES))
+                .andExpect(model().attributeExists(AppConstants.Attributes.ATTR_CATEGORIES));
     }
 
     @Test
@@ -86,8 +87,8 @@ public class CategoryControllerTest {
     public void testShowCreateForm() throws Exception {
         mockMvc.perform(get("/categories/new"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("categoryForm"))
-                .andExpect(model().attributeExists("categoryDto"));
+                .andExpect(view().name(AppConstants.Views.VIEW_CATEGORY_FORM))
+                .andExpect(model().attributeExists(AppConstants.Attributes.ATTR_CATEGORY_DTO));
     }
 
     @Test
@@ -110,22 +111,24 @@ public class CategoryControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories"))
-                .andExpect(flash().attribute("successMessage", "Категория успешно создана"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_CREATED));
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void testCreateCategoryDuplicate() throws Exception {
+        String categoryName = "Существующая";
+        String errorMessage = "Категория с именем '" + categoryName + "' уже существует";
         when(categoryService.createCategory(any(CategoryDto.class)))
-                .thenThrow(new CategoryService.CategoryAlreadyExistsException("Категория с именем 'Существующая' уже существует"));
+                .thenThrow(new CategoryService.CategoryAlreadyExistsException(errorMessage));
 
         mockMvc.perform(post("/categories/new")
-                        .param("name", "Существующая")
+                        .param("name", categoryName)
                         .param("description", "Описание")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories/new?error"))
-                .andExpect(flash().attribute("errorMessage", "Категория с именем 'Существующая' уже существует"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, errorMessage));
     }
 
     @Test
@@ -146,8 +149,8 @@ public class CategoryControllerTest {
 
         mockMvc.perform(get("/categories/1/edit"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("categoryEditForm"))
-                .andExpect(model().attributeExists("categoryDto"));
+                .andExpect(view().name(AppConstants.Views.VIEW_CATEGORY_EDIT_FORM))
+                .andExpect(model().attributeExists(AppConstants.Attributes.ATTR_CATEGORY_DTO));
     }
 
     @Test
@@ -158,7 +161,7 @@ public class CategoryControllerTest {
         mockMvc.perform(get("/categories/1/edit"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories"))
-                .andExpect(flash().attribute("errorMessage", "Категория не найдена"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_NOT_FOUND));
     }
 
     @Test
@@ -179,23 +182,25 @@ public class CategoryControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories"))
-                .andExpect(flash().attribute("successMessage", "Категория успешно обновлена"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_UPDATED));
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void testUpdateCategoryDuplicate() throws Exception {
+        String categoryName = "Существующая";
+        String errorMessage = "Категория с именем '" + categoryName + "' уже существует";
         when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
-                .thenThrow(new CategoryService.CategoryAlreadyExistsException("Категория с именем 'Существующая' уже существует"));
+                .thenThrow(new CategoryService.CategoryAlreadyExistsException(errorMessage));
 
         mockMvc.perform(post("/categories/1/edit")
                         .param("id", "1")
-                        .param("name", "Существующая")
+                        .param("name", categoryName)
                         .param("description", "Описание")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories/1/edit?error"))
-                .andExpect(flash().attribute("errorMessage", "Категория с именем 'Существующая' уже существует"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, errorMessage));
     }
 
     @Test
@@ -206,7 +211,7 @@ public class CategoryControllerTest {
         mockMvc.perform(post("/categories/1/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/categories"))
-                .andExpect(flash().attribute("successMessage", "Категория успешно удалена"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_DELETED));
     }
 
     @Test

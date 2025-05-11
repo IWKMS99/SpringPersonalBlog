@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.controller;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.dto.PostDto;
 import com.iwkms.personalBlog.mapper.CategoryMapper;
 import com.iwkms.personalBlog.mapper.PostMapper;
@@ -74,8 +75,8 @@ public class PostControllerTest {
 
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("posts"))
-                .andExpect(model().attribute("posts", posts));
+                .andExpect(view().name(AppConstants.Views.VIEW_POSTS))
+                .andExpect(model().attribute(AppConstants.Attributes.ATTR_POSTS, posts));
     }
 
     @Test
@@ -87,8 +88,8 @@ public class PostControllerTest {
 
         mockMvc.perform(get("/post/1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("postDetails"))
-                .andExpect(model().attribute("post", post));
+                .andExpect(view().name(AppConstants.Views.VIEW_POST_DETAILS))
+                .andExpect(model().attribute(AppConstants.Attributes.ATTR_POST, post));
     }
 
     @Test
@@ -99,7 +100,7 @@ public class PostControllerTest {
         mockMvc.perform(get("/post/1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attribute("errorMessage", "Post not found"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_POST_NOT_FOUND));
     }
 
     @Test
@@ -109,7 +110,7 @@ public class PostControllerTest {
         
         mockMvc.perform(get("/post/new"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("postForm"))
+                .andExpect(view().name(AppConstants.Views.VIEW_POST_FORM))
                 .andExpect(model().attributeExists("postDto"));
     }
 
@@ -135,7 +136,7 @@ public class PostControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/post/1"))
-                .andExpect(flash().attribute("successMessage", "Post successfully created"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_POST_CREATED));
 
         verify(postService).createPost(any(Post.class));
     }
@@ -150,7 +151,7 @@ public class PostControllerTest {
                         .param("content", "Short")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("postForm"))
+                .andExpect(view().name(AppConstants.Views.VIEW_POST_FORM))
                 .andExpect(model().attributeHasFieldErrors("postDto", "title", "content"));
     }
 
@@ -176,7 +177,7 @@ public class PostControllerTest {
 
         mockMvc.perform(get("/post/1/edit"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("postEditForm"))
+                .andExpect(view().name(AppConstants.Views.VIEW_POST_EDIT_FORM))
                 .andExpect(model().attributeExists("postDto"))
                 .andExpect(model().attribute("postDto", hasProperty("title", is("Test Title"))))
                 .andExpect(model().attribute("postDto", hasProperty("content", is("Test Content"))));
@@ -190,7 +191,7 @@ public class PostControllerTest {
         mockMvc.perform(get("/post/1/edit"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attribute("errorMessage", "Post not found"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_POST_NOT_FOUND));
     }
 
     @Test
@@ -217,7 +218,7 @@ public class PostControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/post/1"))
-                .andExpect(flash().attribute("successMessage", "Post successfully updated"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_POST_UPDATED));
     }
 
     @Test
@@ -241,7 +242,7 @@ public class PostControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attribute("errorMessage", "You don't have permission to perform this action"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_UNAUTHORIZED));
     }
 
     @Test
@@ -254,7 +255,7 @@ public class PostControllerTest {
                         .param("content", "Short")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("postEditForm"))
+                .andExpect(view().name(AppConstants.Views.VIEW_POST_EDIT_FORM))
                 .andExpect(model().attributeHasFieldErrors("postDto", "title", "content"));
     }
 
@@ -270,7 +271,7 @@ public class PostControllerTest {
         mockMvc.perform(post("/post/1/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attribute("successMessage", "Post successfully deleted"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_POST_DELETED));
     }
 
     @Test
@@ -285,7 +286,7 @@ public class PostControllerTest {
         mockMvc.perform(post("/post/1/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attribute("errorMessage", "You don't have permission to perform this action"));
+                .andExpect(flash().attribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_UNAUTHORIZED));
     }
 
     @TestConfiguration

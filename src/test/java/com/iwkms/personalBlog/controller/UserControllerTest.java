@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.controller;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.dto.UserRegistrationDto;
 import com.iwkms.personalBlog.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ public class UserControllerTest {
     public void testDisplayLoginPage() throws Exception {
         mockMvc.perform(get("/user/login"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("login"));
+                .andExpect(view().name(AppConstants.Views.LOGIN_VIEW));
     }
 
     @Test
@@ -46,7 +47,7 @@ public class UserControllerTest {
     public void testDisplayLogoutConfirmation() throws Exception {
         mockMvc.perform(get("/user/logout"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("logout"));
+                .andExpect(view().name(AppConstants.Views.LOGOUT_VIEW));
     }
 
     @Test
@@ -54,8 +55,8 @@ public class UserControllerTest {
     public void testDisplayRegistrationForm() throws Exception {
         mockMvc.perform(get("/user/register"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registration"))
-                .andExpect(model().attributeExists("userDto"));
+                .andExpect(view().name(AppConstants.Views.REGISTRATION_VIEW))
+                .andExpect(model().attributeExists(AppConstants.Attributes.USER_DTO_ATTRIBUTE));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/login"))
-                .andExpect(flash().attribute("registrationSuccess", "Регистрация прошла успешно! Теперь вы можете войти."));
+                .andExpect(flash().attribute(AppConstants.Messages.REGISTRATION_SUCCESS_KEY, AppConstants.Messages.SUCCESS_MESSAGE));
 
         verify(userService).registerNewUser(any(UserRegistrationDto.class));
     }
@@ -84,8 +85,8 @@ public class UserControllerTest {
                         .param("confirmPassword", "short")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registration"))
-                .andExpect(model().attributeHasFieldErrors("userDto", "username", "password"));
+                .andExpect(view().name(AppConstants.Views.REGISTRATION_VIEW))
+                .andExpect(model().attributeHasFieldErrors(AppConstants.Attributes.USER_DTO_ATTRIBUTE, "username", "password"));
     }
     
     @Test
@@ -97,24 +98,26 @@ public class UserControllerTest {
                         .param("confirmPassword", "different")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("registration"))
-                .andExpect(model().attributeHasFieldErrors("userDto", "confirmPassword"));
+                .andExpect(view().name(AppConstants.Views.REGISTRATION_VIEW))
+                .andExpect(model().attributeHasFieldErrors(AppConstants.Attributes.USER_DTO_ATTRIBUTE, "confirmPassword"));
     }
 
     @Test
     @WithMockUser(username = "testuser")
     public void testProcessRegistrationUserAlreadyExists() throws Exception {
-        doThrow(new UserService.UserAlreadyExistException("User with username 'existinguser' already exists."))
+        String username = "existinguser";
+        String errorMessage = "User with username '" + username + "' already exists.";
+        doThrow(new UserService.UserAlreadyExistException(errorMessage))
                 .when(userService).registerNewUser(any(UserRegistrationDto.class));
 
         mockMvc.perform(post("/user/register")
-                        .param("username", "existinguser")
+                        .param("username", username)
                         .param("password", "password123")
                         .param("confirmPassword", "password123")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/register?error"))
-                .andExpect(flash().attribute("registrationError", "User with username 'existinguser' already exists."));
+                .andExpect(flash().attribute(AppConstants.Messages.REGISTRATION_ERROR_KEY, errorMessage));
     }
 
     @Test
@@ -130,7 +133,7 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/register?error"))
-                .andExpect(flash().attribute("registrationError", "Произошла ошибка при регистрации."));
+                .andExpect(flash().attribute(AppConstants.Messages.REGISTRATION_ERROR_KEY, AppConstants.Messages.GENERIC_ERROR_MESSAGE));
     }
 
     @TestConfiguration

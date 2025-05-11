@@ -91,11 +91,13 @@ class CategoryServiceTest {
 
     @Test
     void createCategory_duplicateName_shouldThrow() {
-        when(categoryRepository.existsByName("Технологии")).thenReturn(true);
+        String categoryName = "Технологии";
+        String expectedMessage = "Категория с именем '" + categoryName + "' уже существует";
+        when(categoryRepository.existsByName(categoryName)).thenReturn(true);
         
         assertThatThrownBy(() -> categoryService.createCategory(categoryDto))
                 .isInstanceOf(CategoryService.CategoryAlreadyExistsException.class)
-                .hasMessageContaining("Категория с именем 'Технологии' уже существует");
+                .hasMessageContaining(expectedMessage);
     }
 
     @Test
@@ -119,14 +121,16 @@ class CategoryServiceTest {
     @Test
     void updateCategory_duplicateName_shouldThrow() {
         CategoryDto updateDto = new CategoryDto();
-        updateDto.setName("Другая категория");
+        String categoryName = "Другая категория";
+        updateDto.setName(categoryName);
+        String expectedMessage = "Категория с именем '" + categoryName + "' уже существует";
         
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(categoryRepository.existsByName("Другая категория")).thenReturn(true);
+        when(categoryRepository.existsByName(categoryName)).thenReturn(true);
         
         assertThatThrownBy(() -> categoryService.updateCategory(1L, updateDto))
                 .isInstanceOf(CategoryService.CategoryAlreadyExistsException.class)
-                .hasMessageContaining("Категория с именем 'Другая категория' уже существует");
+                .hasMessageContaining(expectedMessage);
     }
 
     @Test

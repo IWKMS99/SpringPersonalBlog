@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.validation;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
@@ -34,7 +35,7 @@ class PasswordMatchValidatorTest {
         passwordMatch = mock(PasswordMatch.class);
         when(passwordMatch.password()).thenReturn("password");
         when(passwordMatch.confirmPassword()).thenReturn("confirmPassword");
-        when(passwordMatch.message()).thenReturn("Пароли не совпадают");
+        when(passwordMatch.message()).thenReturn(AppConstants.Messages.GENERIC_ERROR_MESSAGE);
         
         validator.initialize(passwordMatch);
         
@@ -61,7 +62,7 @@ class PasswordMatchValidatorTest {
         
         assertThat(result).isFalse();
         verify(context).disableDefaultConstraintViolation();
-        verify(context).buildConstraintViolationWithTemplate("Пароли не совпадают");
+        verify(context).buildConstraintViolationWithTemplate(AppConstants.Messages.GENERIC_ERROR_MESSAGE);
         verify(builder).addPropertyNode("confirmPassword");
         verify(nodeBuilder).addConstraintViolation();
     }

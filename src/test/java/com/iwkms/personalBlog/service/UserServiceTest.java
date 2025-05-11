@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.service;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.dto.UserRegistrationDto;
 import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
@@ -69,6 +70,6 @@ class UserServiceTest {
         
         assertThatThrownBy(() -> userService.registerNewUser(dto))
                 .isInstanceOf(UserService.PasswordMismatchException.class)
-                .hasMessage("Пароли не совпадают");
+                .hasMessage(AppConstants.Messages.GENERIC_ERROR_MESSAGE);
     }
 }
