@@ -33,6 +33,9 @@ public class SecurityConfig {
         configureLogout(http);
         configureExceptionHandling(http);
         http.userDetailsService(userDetailsService);
+        
+        // Отключаем CSRF для API запросов
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(API_URLS));
 
         return http.build();
     }
@@ -41,6 +44,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(PUBLIC_URLS).permitAll()
                 .requestMatchers(PUBLIC_RESOURCE_URLS).permitAll()
+                .requestMatchers(API_URLS).permitAll() // Разрешаем доступ к API без аутентификации
                 .requestMatchers(AUTHENTICATED_URLS).authenticated()
                 .requestMatchers(USER_CONTENT_URLS).authenticated()
                 .requestMatchers("/categories/new", "/categories/*/edit", "/categories/*/delete").hasRole("ADMIN")

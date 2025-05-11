@@ -77,7 +77,6 @@ public class PostService {
                     existingPost.setTitle(postDetails.getTitle());
                     existingPost.setContent(sanitize(postDetails.getContent()));
                     
-                    // Обновляем категории, если они указаны
                     if (postDetails.getCategories() != null) {
                         existingPost.setCategories(postDetails.getCategories());
                     }

@@ -38,7 +38,6 @@ public class PostMapper {
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
         
-        // Заполняем категории, если они указаны
         if (dto.getCategoryIds() != null && !dto.getCategoryIds().isEmpty()) {
             Set<Category> categories = new HashSet<>();
             for (Long categoryId : dto.getCategoryIds()) {

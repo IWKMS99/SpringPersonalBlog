@@ -62,7 +62,6 @@ public class PostController {
         model.addAttribute("totalPages", postPage.getTotalPages());
         model.addAttribute("totalItems", postPage.getTotalElements());
         
-        // Добавляем список категорий для фильтрации
         model.addAttribute("categories", categoryService.getAllCategories());
         
         return VIEW_POSTS;

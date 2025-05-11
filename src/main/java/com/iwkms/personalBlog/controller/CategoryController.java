@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.controller;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.dto.CategoryDto;
 import com.iwkms.personalBlog.mapper.CategoryMapper;
 import com.iwkms.personalBlog.service.CategoryService;
@@ -28,35 +29,35 @@ public class CategoryController {
         List<CategoryDto> categories = categoryService.getAllCategories().stream()
                 .map(categoryMapper::toDto)
                 .collect(Collectors.toList());
-        model.addAttribute("categories", categories);
-        return "categories";
+        model.addAttribute(AppConstants.Attributes.ATTR_CATEGORIES, categories);
+        return AppConstants.Views.VIEW_CATEGORIES;
     }
     
     @GetMapping("/new")
     @PreAuthorize("hasRole('ADMIN')")
     public String showCreateForm(Model model) {
-        model.addAttribute("categoryDto", new CategoryDto());
-        return "categoryForm";
+        model.addAttribute(AppConstants.Attributes.ATTR_CATEGORY_DTO, new CategoryDto());
+        return AppConstants.Views.VIEW_CATEGORY_FORM;
     }
     
     @PostMapping("/new")
     @PreAuthorize("hasRole('ADMIN')")
-    public String createCategory(@Valid @ModelAttribute("categoryDto") CategoryDto categoryDto,
+    public String createCategory(@Valid @ModelAttribute(AppConstants.Attributes.ATTR_CATEGORY_DTO) CategoryDto categoryDto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return "categoryForm";
+            return AppConstants.Views.VIEW_CATEGORY_FORM;
         }
         
         try {
             categoryService.createCategory(categoryDto);
-            redirectAttributes.addFlashAttribute("successMessage", "Категория успешно создана");
-            return "redirect:/categories";
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_CREATED);
+            return AppConstants.Views.REDIRECT_CATEGORIES;
         } catch (CategoryService.CategoryAlreadyExistsException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, e.getMessage());
             return "redirect:/categories/new?error";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Произошла ошибка при создании категории");
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_CREATE_ERROR);
             return "redirect:/categories/new?error";
         }
     }
@@ -66,40 +67,40 @@ public class CategoryController {
     public String showUpdateForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         return categoryService.getCategoryById(id)
                 .map(category -> {
-                    model.addAttribute("categoryDto", categoryMapper.toDto(category));
-                    return "categoryEditForm";
+                    model.addAttribute(AppConstants.Attributes.ATTR_CATEGORY_DTO, categoryMapper.toDto(category));
+                    return AppConstants.Views.VIEW_CATEGORY_EDIT_FORM;
                 })
                 .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Категория не найдена");
-                    return "redirect:/categories";
+                    redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_NOT_FOUND);
+                    return AppConstants.Views.REDIRECT_CATEGORIES;
                 });
     }
     
     @PostMapping("/{id}/edit")
     @PreAuthorize("hasRole('ADMIN')")
     public String updateCategory(@PathVariable Long id,
-                               @Valid @ModelAttribute("categoryDto") CategoryDto categoryDto,
+                               @Valid @ModelAttribute(AppConstants.Attributes.ATTR_CATEGORY_DTO) CategoryDto categoryDto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return "categoryEditForm";
+            return AppConstants.Views.VIEW_CATEGORY_EDIT_FORM;
         }
         
         try {
             return categoryService.updateCategory(id, categoryDto)
                     .map(category -> {
-                        redirectAttributes.addFlashAttribute("successMessage", "Категория успешно обновлена");
-                        return "redirect:/categories";
+                        redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_UPDATED);
+                        return AppConstants.Views.REDIRECT_CATEGORIES;
                     })
                     .orElseGet(() -> {
-                        redirectAttributes.addFlashAttribute("errorMessage", "Категория не найдена");
-                        return "redirect:/categories";
+                        redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_NOT_FOUND);
+                        return AppConstants.Views.REDIRECT_CATEGORIES;
                     });
         } catch (CategoryService.CategoryAlreadyExistsException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, e.getMessage());
             return "redirect:/categories/" + id + "/edit?error";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Произошла ошибка при обновлении категории");
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_UPDATE_ERROR);
             return "redirect:/categories/" + id + "/edit?error";
         }
     }
@@ -109,10 +110,10 @@ public class CategoryController {
     public String deleteCategory(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             categoryService.deleteCategory(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Категория успешно удалена");
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_SUCCESS_MESSAGE, AppConstants.Messages.MSG_CATEGORY_DELETED);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Произошла ошибка при удалении категории");
+            redirectAttributes.addFlashAttribute(AppConstants.Attributes.ATTR_ERROR_MESSAGE, AppConstants.Messages.MSG_CATEGORY_DELETE_ERROR);
         }
-        return "redirect:/categories";
+        return AppConstants.Views.REDIRECT_CATEGORIES;
     }
 } 

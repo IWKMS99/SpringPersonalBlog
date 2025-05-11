@@ -48,7 +48,6 @@ public class CategoryService {
     public Optional<Category> updateCategory(Long id, CategoryDto categoryDto) {
         return categoryRepository.findById(id)
                 .map(existingCategory -> {
-                    // Проверяем, не занято ли имя другой категорией
                     if (!existingCategory.getName().equals(categoryDto.getName()) && 
                             categoryRepository.existsByName(categoryDto.getName())) {
                         throw new CategoryAlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
