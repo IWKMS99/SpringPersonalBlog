@@ -80,6 +80,7 @@ public final class AppConstants {
         public static final String REGISTRATION_ERROR_KEY = "registrationError";
         public static final String SUCCESS_MESSAGE = "Регистрация прошла успешно! Теперь вы можете войти.";
         public static final String GENERIC_ERROR_MESSAGE = "Произошла ошибка при регистрации.";
+        public static final String PASSWORD_MISMATCH_MESSAGE = "Пароли не совпадают";
 
         // Category
         public static final String MSG_CATEGORY_CREATED = "Категория успешно создана";

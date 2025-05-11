@@ -70,6 +70,6 @@ class UserServiceTest {
         
         assertThatThrownBy(() -> userService.registerNewUser(dto))
                 .isInstanceOf(UserService.PasswordMismatchException.class)
-                .hasMessage(AppConstants.Messages.GENERIC_ERROR_MESSAGE);
+                .hasMessage(AppConstants.Messages.PASSWORD_MISMATCH_MESSAGE);
     }
 }

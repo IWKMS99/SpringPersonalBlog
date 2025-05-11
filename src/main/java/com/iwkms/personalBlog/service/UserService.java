@@ -1,5 +1,6 @@
 package com.iwkms.personalBlog.service;
 
+import com.iwkms.personalBlog.config.AppConstants;
 import com.iwkms.personalBlog.dto.UserRegistrationDto;
 import com.iwkms.personalBlog.model.entity.User;
 import com.iwkms.personalBlog.repository.UserRepository;
@@ -41,7 +42,7 @@ public class UserService {
                 });
 
         if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
-            throw new PasswordMismatchException("Пароли не совпадают");
+            throw new PasswordMismatchException(AppConstants.Messages.PASSWORD_MISMATCH_MESSAGE);
         }
 
         User newUser = buildUserFromDto(registrationDto);
