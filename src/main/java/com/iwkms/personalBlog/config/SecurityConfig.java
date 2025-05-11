@@ -63,8 +63,8 @@ public class SecurityConfig {
 
     private void configureExceptionHandling(HttpSecurity http) throws Exception {
         http.exceptionHandling(exceptions -> exceptions
-                .accessDeniedHandler((ignored, response, ignored1) -> response.sendRedirect("/?error=accessDenied"))
-                .authenticationEntryPoint((ignored, response, ignored1) -> response.sendRedirect(LOGIN_PAGE_URL))
+                .accessDeniedHandler((_, response, _) -> response.sendRedirect("/?error=accessDenied"))
+                .authenticationEntryPoint((_, response, _) -> response.sendRedirect(LOGIN_PAGE_URL))
         );
     }
 }

@@ -107,7 +107,7 @@ public class PostController {
             User currentUser = getCurrentUser(authentication);
             Post updated = postMapper.toEntity(postDto);
             return postService.updatePost(id, updated, currentUser)
-                    .map(ignored -> {
+                    .map(_ -> {
                         redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, MSG_POST_UPDATED);
                         return REDIRECT_POST_DETAIL + id;
                     })
